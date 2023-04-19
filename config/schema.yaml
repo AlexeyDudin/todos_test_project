@@ -1,5 +1,0 @@
-propel:
-  todo:
-    id: ~
-    text: {type: varchar(255), required: true}
-    executed: {type: TINYINT(1), required: true}
