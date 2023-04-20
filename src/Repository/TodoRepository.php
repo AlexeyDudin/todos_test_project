@@ -39,6 +39,16 @@ class TodoRepository extends ServiceEntityRepository
         }
     }
 
+    public function getAll(bool $flush = false):array
+    {
+        return $this->findAll();
+    }
+
+    public function findById(int $id):Todo
+    {
+        return $this->find($id);
+    }
+
 //    /**
 //     * @return Todo[] Returns an array of Todo objects
 //     */
