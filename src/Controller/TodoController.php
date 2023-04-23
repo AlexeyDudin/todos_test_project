@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use ApiPlatform\Elasticsearch\Exception\IndexNotFoundException;
 use ApiPlatform\OpenApi\Model\Response;
 use App\Entity\Todo;
 use App\Repository\TodoRepository;
@@ -29,8 +30,10 @@ class TodoController extends AbstractController
     public function addTodo(TodoRepository $todoRepository, Request $request):JsonResponse
     {
         try {
-//            $text = $request->request->get("text");
-            $text = $request->query->get("text");
+            //$text = $request->request->get("text");
+            $parameters = json_decode($request->getContent(), true);
+            $text = $parameters['text'];
+            //$text = $request->query->get("text");
             $todo = new Todo($text, false);
             $todoRepository->add($todo, true);
             return $this->json($todo);
@@ -42,15 +45,15 @@ class TodoController extends AbstractController
     }
 
     /**
-     * @Route("/todo/getAll", name="getAllTodos")
+     * @Route("/todo/getAll", name="todos_all")
      */
     public function getAll(TodoRepository $todoRepository):JsonResponse
     {
-        return $this->json($todoRepository->findAll());
+        return $this->json($todoRepository->getAll());
     }
 
     /**
-     * @Route("/todo/getArchive", name="getArchiveTodos")
+     * @Route("/todo/getArchive", name="archive_todos")
      */
     public function getArchive(TodoRepository $todoRepository):JsonResponse
     {
@@ -62,6 +65,71 @@ class TodoController extends AbstractController
             return $this->json($result);
         }
         catch (Exception $ex)
+        {
+            return $this->json($ex);
+        }
+    }
+
+    /**
+     * @Route("/todo/getActive", name="active_todos")
+     */
+    public function getActive(TodoRepository $todoRepository):JsonResponse
+    {
+        try {
+            $qb = $todoRepository->createQueryBuilder('t')
+                ->where('t.executed = FALSE');
+            $result = $todoRepository->findByQueryBuilder($qb);
+
+            return $this->json($result);
+        }
+        catch (Exception $ex)
+        {
+            return $this->json($ex);
+        }
+    }
+
+    /**
+     * @Route("/todo/changeExecuted", name="todo_executed")
+     * @throws IndexNotFoundException
+     */
+    public function changeExecuted(TodoRepository $todoRepository, Request $request):JsonResponse
+    {
+        try {
+            $parameters = json_decode($request->getContent(), true);
+            $id = $parameters['id'];
+            //$id = $request->query->get("id");
+            $todo = $todoRepository->findById($id);
+            if (is_null($todo)) {
+                throw new IndexNotFoundException("Todo с id = " . $id . " не найден");
+            }
+            $todo->setExecuted(!$todo->isExecuted());
+            $todoRepository->commitChanges();
+            return $this->json($todo);
+        }
+        catch(\Exception $e){
+            $errorMessage = $e->getMessage();
+        }
+    }
+
+    /**
+     * @Route("/todo/delete", name="todo_delete")
+     * @throws IndexNotFoundException
+     */
+    public function delete(TodoRepository $todoRepository, Request $request):JsonResponse
+    {
+        try {
+            $parameters = json_decode($request->getContent(), true);
+            $id = $parameters['id'];
+            //$id = $request->query->get("id");
+            $todo = $todoRepository->findById($id);
+            $todoReturned = clone $todo;
+            if (is_null($todo)) {
+                throw new IndexNotFoundException("Todo с id = " . $id . " не найден");
+            }
+            $todoRepository->remove($todo, true);
+            return $this->json($todoReturned);
+        }
+        catch (\Exception $ex)
         {
             return $this->json($ex);
         }

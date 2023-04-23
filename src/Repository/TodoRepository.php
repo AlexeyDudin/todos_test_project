@@ -40,7 +40,7 @@ class TodoRepository extends ServiceEntityRepository
         }
     }
 
-    public function getAll(bool $flush = false):array
+    public function getAll():array
     {
         return $this->findAll();
     }
@@ -54,6 +54,11 @@ class TodoRepository extends ServiceEntityRepository
     {
         $query = $qb->getQuery();
         return $query->execute();
+    }
+
+    public function commitChanges()
+    {
+        $this->getEntityManager()->flush();
     }
 
 //    /**
