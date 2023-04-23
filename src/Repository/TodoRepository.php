@@ -17,13 +17,11 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class TodoRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(ManagerRegistry $registry) {
         parent::__construct($registry, Todo::class);
     }
 
-    public function add(Todo $entity, bool $flush = false): void
-    {
+    public function add(Todo $entity, bool $flush = false): void {
         $this->getEntityManager()->persist($entity);
 
         if ($flush) {
@@ -31,8 +29,7 @@ class TodoRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(Todo $entity, bool $flush = false): void
-    {
+    public function remove(Todo $entity, bool $flush = false): void {
         $this->getEntityManager()->remove($entity);
 
         if ($flush) {
@@ -40,24 +37,20 @@ class TodoRepository extends ServiceEntityRepository
         }
     }
 
-    public function getAll():array
-    {
+    public function getAll():array {
         return $this->findAll();
     }
 
-    public function findById(int $id):Todo
-    {
+    public function findById(int $id):?Todo {
         return $this->find($id);
     }
 
-    public function findByQueryBuilder(QueryBuilder $qb):array
-    {
+    public function findByQueryBuilder(QueryBuilder $qb):array {
         $query = $qb->getQuery();
         return $query->execute();
     }
 
-    public function commitChanges()
-    {
+    public function commitChanges() {
         $this->getEntityManager()->flush();
     }
 
