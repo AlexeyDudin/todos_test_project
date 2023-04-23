@@ -4,12 +4,21 @@ namespace App\Entity;
 
 use App\Repository\TodoRepository;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiResource;
 
 /**
+ * @ApiResource
  * @ORM\Entity(repositoryClass=TodoRepository::class)
  */
 class Todo
 {
+
+    public function __construct(string $text, bool $executed)
+    {
+        $this->text = $text;
+        $this->executed = $executed;
+    }
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

@@ -4,7 +4,7 @@
 getAll:
   path: /todo/getAll
   methods: GET
-  controller: App\Controller\TodoConctroller::getAll
+  controller: App\Controller\TodoController::getAll
 
 add:
   path: /todo/add

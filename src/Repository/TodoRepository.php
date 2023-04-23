@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Todo;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -47,6 +48,12 @@ class TodoRepository extends ServiceEntityRepository
     public function findById(int $id):Todo
     {
         return $this->find($id);
+    }
+
+    public function findByQueryBuilder(QueryBuilder $qb):array
+    {
+        $query = $qb->getQuery();
+        return $query->execute();
     }
 
 //    /**
