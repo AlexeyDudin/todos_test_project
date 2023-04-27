@@ -23,7 +23,6 @@ class TodoRepository extends ServiceEntityRepository
 
     public function add(Todo $entity, bool $flush = false): void {
         $this->getEntityManager()->persist($entity);
-
         if ($flush) {
             $this->getEntityManager()->flush();
         }
@@ -31,7 +30,6 @@ class TodoRepository extends ServiceEntityRepository
 
     public function remove(Todo $entity, bool $flush = false): void {
         $this->getEntityManager()->remove($entity);
-
         if ($flush) {
             $this->getEntityManager()->flush();
         }

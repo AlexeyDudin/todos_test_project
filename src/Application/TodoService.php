@@ -4,56 +4,53 @@ namespace App\Application;
 
 use ApiPlatform\Elasticsearch\Exception\IndexNotFoundException;
 use App\Entity\Todo;
+use App\Entity\DTOs\TodoDto;
 use App\Repository\TodoRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
+use App\Converters\TodoMapper;
 
-class TodoService extends AbstractController
+class TodoService
 {
-    public function addTodo(TodoRepository $todoRepository, Request $request):JsonResponse {
-        $parameters = json_decode($request->getContent(), true);
-        $text = $parameters['text'];
-        $todo = new Todo($text, false);
-        $todoRepository->add($todo, true);
-        return $this->json($todo);
+    public function addTodo(TodoRepository $todoRepository, TodoDto $todo):TodoDto {
+        $todoRepository->add(TodoMapper::dtoToTodo($todo), true);
+        return $todo;
     }
-    public function getAll(TodoRepository $todoRepository):JsonResponse {
-        return $this->json($todoRepository->getAll());
+    public function getAll(TodoRepository $todoRepository):array {
+        return TodoMapper::todosToDtoArray($todoRepository->getAll());
     }
-    public function getArchive(TodoRepository $todoRepository):JsonResponse {
+    public function getArchive(TodoRepository $todoRepository):array {
         $qb = $todoRepository->createQueryBuilder('t')
             ->where('t.executed = TRUE');
-        $result = $todoRepository->findByQueryBuilder($qb);
-
-        return $this->json($result);
+        return TodoMapper::todosToDtoArray($todoRepository->findByQueryBuilder($qb));
     }
-    public function getActive(TodoRepository $todoRepository):JsonResponse {
+    public function getActive(TodoRepository $todoRepository):array {
         $qb = $todoRepository->createQueryBuilder('t')
             ->where('t.executed = FALSE');
-        $result = $todoRepository->findByQueryBuilder($qb);
-        return $this->json($result);
+        return TodoMapper::todosToDtoArray($todoRepository->findByQueryBuilder($qb));
     }
-    public function changeExecuted(TodoRepository $todoRepository, Request $request):JsonResponse {
-        $parameters = json_decode($request->getContent(), true);
-        $id = $parameters['id'];
+
+    /**
+     * @throws IndexNotFoundException
+     */
+    public function changeExecuted(TodoRepository $todoRepository, int $id):TodoDto {
         $todo = $todoRepository->findById($id);
         if (is_null($todo)) {
             throw new IndexNotFoundException("Todo с id = " . $id . " не найден");
         }
         $todo->setExecuted(!$todo->isExecuted());
         $todoRepository->commitChanges();
-        return $this->json($todo);
+        return TodoMapper::todoToDto($todo);
     }
-    public function delete(TodoRepository $todoRepository, Request $request):JsonResponse {
-        $parameters = json_decode($request->getContent(), true);
-        $id = $parameters['id'];
+
+    /**
+     * @throws IndexNotFoundException
+     */
+    public function delete(TodoRepository $todoRepository, int $id):TodoDto {
         $todo = $todoRepository->findById($id);
         if (is_null($todo)) {
             throw new IndexNotFoundException("Todo с id = " . $id . " не найден");
         }
         $todoReturned = clone $todo;
         $todoRepository->remove($todo, true);
-        return $this->json($todoReturned);
+        return TodoMapper::todoToDto($todoReturned);
     }
 }

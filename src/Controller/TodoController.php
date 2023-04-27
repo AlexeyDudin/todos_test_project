@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use ApiPlatform\Elasticsearch\Exception\IndexNotFoundException;
+use ApiPlatform\Exception\InvalidArgumentException;
 use ApiPlatform\OpenApi\Model\Response;
 use App\Application\TodoService;
 use App\Entity\Todo;
@@ -25,10 +26,21 @@ class TodoController extends AbstractController
      */
     public function addTodo(TodoService $todoService, TodoRepository $todoRepository, Request $request):JsonResponse {
         try {
-            return $todoService->addTodo($todoRepository, $request);
+            $parameters = json_decode($request->getContent(), true);
+            $text = $parameters['text'];
+            if (is_null($text))
+                throw new InvalidArgumentException("Отсутствует параметр text в запросе");
+            //Можно не делать данную обработку - т.к. Doctrine вызовет Exception при попытке сохранить информацию в БД
+            if (strlen($text) > 1000)
+                throw new InvalidArgumentException("Длина текста превышает 1000 симоволов");
+            $todo = new Todo($text, false);
+            return $this->json($todoService->addTodo($todoRepository, $todo));
+        }
+        catch (InvalidArgumentException $ex) {
+            return $this->json($ex->getMessage(), 400);
         }
         catch(\Exception $e) {
-            return $this->json($e->getMessage(), 404);
+            return $this->json($e->getMessage(), 500);
         }
     }
 
@@ -37,10 +49,10 @@ class TodoController extends AbstractController
      */
     public function getAll(TodoService $todoService, TodoRepository $todoRepository):JsonResponse {
         try {
-            return $todoService->getAll($todoRepository);
+            return $this->json($todoService->getAll($todoRepository));
         }
         catch(\Exception $e) {
-            return $this->json($e->getMessage(), 404);
+            return $this->json($e->getMessage(), 500);
         }
     }
 
@@ -49,10 +61,10 @@ class TodoController extends AbstractController
      */
     public function getArchive(TodoService $todoService, TodoRepository $todoRepository):JsonResponse {
         try {
-            return $todoService->getArchive($todoRepository);
+            return $this->json($todoService->getArchive($todoRepository));
         }
         catch(\Exception $e) {
-            return $this->json($e->getMessage(), 404);
+            return $this->json($e->getMessage(), 500);
         }
     }
 
@@ -61,10 +73,10 @@ class TodoController extends AbstractController
      */
     public function getActive(TodoService $todoService, TodoRepository $todoRepository):JsonResponse {
         try {
-            return $todoService->getActive($todoRepository);
+            return $this->json($todoService->getActive($todoRepository));
         }
         catch(\Exception $e) {
-            return $this->json($e->getMessage(), 404);
+            return $this->json($e->getMessage(), 500);
         }
     }
 
@@ -73,10 +85,20 @@ class TodoController extends AbstractController
      */
     public function changeExecuted(TodoService $todoService, TodoRepository $todoRepository, Request $request):JsonResponse {
         try {
-            return $todoService->changeExecuted($todoRepository, $request);
+            $parameters = json_decode($request->getContent(), true);
+            $id = $parameters['id'];
+            if (!is_numeric($id))
+                throw new InvalidArgumentException("Не корректный параметр id в запросе");
+            return $this->json($todoService->changeExecuted($todoRepository, $id));
+        }
+        catch (InvalidArgumentException $ex) {
+            return $this->json($ex->getMessage(), 400);
+        }
+        catch (IndexNotFoundException $ex) {
+            return $this->json($ex->getMessage(), 404);
         }
         catch(\Exception $e) {
-            return $this->json($e->getMessage(), 404);
+            return $this->json($e->getMessage(), 500);
         }
     }
 
@@ -85,10 +107,19 @@ class TodoController extends AbstractController
      */
     public function delete(TodoService $todoService, TodoRepository $todoRepository, Request $request):JsonResponse {
         try {
-            return $todoService->delete($todoRepository, $request);
+            $parameters = json_decode($request->getContent(), true);
+            $id = $parameters['id'];
+            if (!is_numeric($id))
+                throw new InvalidArgumentException("Не корректный параметр id в запросе");
+            return $this->json($todoService->delete($todoRepository, $id));
+        }catch (InvalidArgumentException $ex) {
+            return $this->json($ex->getMessage(), 400);
+        }
+        catch (IndexNotFoundException $ex) {
+            return $this->json($ex->getMessage(), 404);
         }
         catch(\Exception $e) {
-            return $this->json($e->getMessage(), 404);
+            return $this->json($e->getMessage(), 500);
         }
     }
 }

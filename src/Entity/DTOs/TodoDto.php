@@ -1,38 +1,16 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\DTOs;
 
-use App\Repository\TodoRepository;
-use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Core\Annotation\ApiResource;
-
-/**
- * @ApiResource
- * @ORM\Entity(repositoryClass=TodoRepository::class)
- */
-class Todo
+class TodoDto
 {
-    public function __construct(string $text, $executed, ?int $id = null) {
+    public function __construct(int $id, string $text, bool $executed) {
         $this->id = $id;
         $this->text = $text;
         $this->executed = $executed;
     }
-
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
     private ?int $id;
-
-    /**
-     * @ORM\Column(type="string", length=1000)
-     */
     private ?string $text;
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
     private ?bool $executed;
 
     public function getId(): ?int
