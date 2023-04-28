@@ -49,8 +49,8 @@ class TodoService
         if (is_null($todo)) {
             throw new IndexNotFoundException("Todo с id = " . $id . " не найден");
         }
-        $todoReturned = clone $todo;
+        $todoReturned = TodoMapper::todoToDto($todo);
         $todoRepository->remove($todo, true);
-        return TodoMapper::todoToDto($todoReturned);
+        return $todoReturned;
     }
 }
