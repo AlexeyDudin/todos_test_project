@@ -52,6 +52,18 @@ class TodoRepository extends ServiceEntityRepository
         $this->getEntityManager()->flush();
     }
 
+    public function getArchiveTodos():array {
+        $qb = $this->createQueryBuilder('t')
+            ->where('t.executed = TRUE');
+        return $this->findByQueryBuilder($qb);
+    }
+
+    public function getActiveTodos():array {
+        $qb = $this->createQueryBuilder('t')
+            ->where('t.executed = FALSE');
+        return $this->findByQueryBuilder($qb);
+    }
+
 //    /**
 //     * @return Todo[] Returns an array of Todo objects
 //     */

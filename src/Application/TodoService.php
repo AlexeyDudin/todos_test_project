@@ -18,14 +18,12 @@ class TodoService
         return TodoMapper::todosToDtoArray($todoRepository->getAll());
     }
     public function getArchive(TodoRepository $todoRepository):array {
-        $qb = $todoRepository->createQueryBuilder('t')
-            ->where('t.executed = TRUE');
-        return TodoMapper::todosToDtoArray($todoRepository->findByQueryBuilder($qb));
+
+        return TodoMapper::todosToDtoArray($todoRepository->getArchiveTodos());
     }
     public function getActive(TodoRepository $todoRepository):array {
-        $qb = $todoRepository->createQueryBuilder('t')
-            ->where('t.executed = FALSE');
-        return TodoMapper::todosToDtoArray($todoRepository->findByQueryBuilder($qb));
+
+        return TodoMapper::todosToDtoArray($todoRepository->getActiveTodos());
     }
 
     /**
