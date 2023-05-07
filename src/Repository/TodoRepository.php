@@ -21,18 +21,14 @@ class TodoRepository extends ServiceEntityRepository
         parent::__construct($registry, Todo::class);
     }
 
-    public function add(Todo $entity, bool $flush = false): void {
+    public function add(Todo $entity): void {
         $this->getEntityManager()->persist($entity);
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        $this->getEntityManager()->flush();
     }
 
-    public function remove(Todo $entity, bool $flush = false): void {
+    public function remove(Todo $entity): void {
         $this->getEntityManager()->remove($entity);
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        $this->getEntityManager()->flush();
     }
 
     public function getAll():array {
@@ -43,7 +39,7 @@ class TodoRepository extends ServiceEntityRepository
         return $this->find($id);
     }
 
-    public function findByQueryBuilder(QueryBuilder $qb):array {
+    private function findByQueryBuilder(QueryBuilder $qb):array {
         $query = $qb->getQuery();
         return $query->execute();
     }

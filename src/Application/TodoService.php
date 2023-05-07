@@ -11,7 +11,7 @@ use App\Converters\TodoMapper;
 class TodoService
 {
     public function addTodo(TodoRepository $todoRepository, TodoDto $todo):TodoDto {
-        $todoRepository->add(TodoMapper::dtoToTodo($todo), true);
+        $todoRepository->add(TodoMapper::dtoToTodo($todo));
         return $todo;
     }
     public function getAll(TodoRepository $todoRepository):array {
@@ -48,7 +48,7 @@ class TodoService
             throw new IndexNotFoundException("Todo с id = " . $id . " не найден");
         }
         $todoReturned = TodoMapper::todoToDto($todo);
-        $todoRepository->remove($todo, true);
+        $todoRepository->remove($todo);
         return $todoReturned;
     }
 }
