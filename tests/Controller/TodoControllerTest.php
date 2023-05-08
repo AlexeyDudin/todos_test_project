@@ -10,9 +10,9 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 class TodoControllerTest extends WebTestCase
 {
     private function testAddTodo(): TodoDto {
-        $todo = new Todo("HelloWWorld", false);
+        $todo = new Todo("HelloWorld", false);
         $client = static::createClient();
-        $clientResult = $client->request('GET', '/todo/add', array($todo));
+        $clientResult = $client->request('POST', '/todo/add', array($todo));
 
         $this->assertResponseIsSuccessful();
         return json_decode($clientResult->text());
