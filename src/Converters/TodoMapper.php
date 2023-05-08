@@ -19,6 +19,10 @@ class TodoMapper
         if (empty($todos) or is_null($todos)) {
             return [];
         }
-        return array_map('todoToDto', $todos);
+        $result = array();
+        foreach ($todos as $todo) {
+            array_push($result, self::todoToDto($todo));
+        }
+        return $result;
     }
 }
